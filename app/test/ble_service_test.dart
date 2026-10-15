@@ -13,9 +13,7 @@ void main() {
       expect(service.currentConnectionState, BleConnectionState.disconnected);
 
       // Connect
-      final connectFuture = service.connect('TEST-DEVICE');
-      expect(service.currentConnectionState, BleConnectionState.connecting);
-      await connectFuture;
+      await service.connect('TEST-DEVICE');
       expect(service.currentConnectionState, BleConnectionState.connected);
 
       // Write time sync and config

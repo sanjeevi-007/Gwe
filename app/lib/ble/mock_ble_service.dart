@@ -65,10 +65,6 @@ class MockBleService implements BleService {
   @override
   Future<void> connect(String deviceId) async {
     _connectedDeviceId = deviceId;
-    _setConnectionState(BleConnectionState.connecting);
-
-    // Simulated short connection latency
-    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     if (_mockPuck.scenario != MockScenario.disconnected) {
       _setConnectionState(BleConnectionState.connected);

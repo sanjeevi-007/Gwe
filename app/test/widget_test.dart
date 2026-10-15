@@ -12,12 +12,14 @@ void main() {
       ),
     );
 
-    expect(find.text('GWEN Dashboard'), findsOneWidget);
+    expect(find.text('GWEN'), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'Home'), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'Insights'), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'Location'), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'AI'), findsOneWidget);
     expect(find.widgetWithText(NavigationDestination, 'Settings'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
   });
 }

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../state/state.dart';
 import '../ai_insights/ai_insights_screen.dart';
 import '../location/location_screen.dart';
 import '../pulse/pulse_screen.dart';
 import '../settings/settings_screen.dart';
 import 'home_screen.dart';
 
-class MainNavigationShell extends StatefulWidget {
+class MainNavigationShell extends ConsumerStatefulWidget {
   const MainNavigationShell({super.key});
 
   @override
-  State<MainNavigationShell> createState() => _MainNavigationShellState();
+  ConsumerState<MainNavigationShell> createState() => _MainNavigationShellState();
 }
 
-class _MainNavigationShellState extends State<MainNavigationShell> {
+class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
@@ -27,6 +29,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
+    // Eagerly initialize and keep database sync service active across app
+    ref.watch(databaseSyncServiceProvider);
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
