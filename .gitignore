@@ -1,0 +1,41 @@
+# Flutter / Dart
+# Note: pubspec.lock is tracked for Flutter apps
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.vscode/*
+!.vscode/settings.json
+
+# PlatformIO
+.pio/
+*.pio
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# ML datasets (track .gitkeep only)
+ml/datasets/*
+!ml/datasets/.gitkeep
+
+# OS specific files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Secrets
+*.env
+.env.*
+
+# Build outputs
+*.apk
+*.aab
+*.bin
+*.elf
+*.hex
