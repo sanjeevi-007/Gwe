@@ -101,6 +101,8 @@ class PacketParser {
           }
           final rawBpm = byteData.getUint16(9, Endian.little);
           final bpm = (rawBpm == 0xFFFF || !isValid) ? null : rawBpm;
+          final rawSpo2 = byteData.getUint8(11);
+          final spo2 = (rawSpo2 == 0xFF || rawSpo2 == 0 || !isValid) ? null : rawSpo2;
           final quality = byteData.getUint8(12);
           final stateRaw = byteData.getUint8(13);
           final state = PulseState.fromRawValue(stateRaw);
@@ -110,6 +112,7 @@ class PacketParser {
             tsDevice: tsDevice,
             tsReceived: tsReceived,
             bpm: bpm,
+            spo2: spo2,
             quality: quality,
             state: state,
             valid: isValid,

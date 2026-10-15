@@ -8,6 +8,7 @@ class PulseReading {
   final DateTime tsDevice;
   final DateTime tsReceived;
   final int? bpm; // Null if invalid or 0xFFFF
+  final int? spo2; // Null if off (0xFF) or unavailable
   final int quality;
   final PulseState state;
   final bool valid;
@@ -18,6 +19,7 @@ class PulseReading {
     required this.tsDevice,
     required this.tsReceived,
     this.bpm,
+    this.spo2,
     required this.quality,
     required this.state,
     required this.valid,
@@ -34,6 +36,7 @@ class PulseReading {
     DateTime? tsDevice,
     DateTime? tsReceived,
     int? bpm,
+    int? spo2,
     int? quality,
     PulseState? state,
     bool? valid,
@@ -44,6 +47,7 @@ class PulseReading {
       tsDevice: tsDevice ?? this.tsDevice,
       tsReceived: tsReceived ?? this.tsReceived,
       bpm: bpm ?? this.bpm,
+      spo2: spo2 ?? this.spo2,
       quality: quality ?? this.quality,
       state: state ?? this.state,
       valid: valid ?? this.valid,
@@ -60,6 +64,7 @@ class PulseReading {
           tsDevice == other.tsDevice &&
           tsReceived == other.tsReceived &&
           bpm == other.bpm &&
+          spo2 == other.spo2 &&
           quality == other.quality &&
           state == other.state &&
           valid == other.valid;
@@ -71,6 +76,7 @@ class PulseReading {
         tsDevice,
         tsReceived,
         bpm,
+        spo2,
         quality,
         state,
         valid,
@@ -78,5 +84,5 @@ class PulseReading {
 
   @override
   String toString() =>
-      'PulseReading(id: $id, deviceId: $deviceId, bpm: $bpm, quality: $quality, state: $state, valid: $valid, tsDevice: $tsDevice, tsReceived: $tsReceived)';
+      'PulseReading(id: $id, deviceId: $deviceId, bpm: $bpm, spo2: $spo2, quality: $quality, state: $state, valid: $valid, tsDevice: $tsDevice, tsReceived: $tsReceived)';
 }
