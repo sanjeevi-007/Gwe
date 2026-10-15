@@ -63,7 +63,7 @@ void main() {
       // Read providers and verify typed models arrive
       final pulse = await container.read(latestPulseProvider.future);
       expect(pulse, isNotNull);
-      expect(pulse!.bpm, 72);
+      expect(pulse!.bpm, inInclusiveRange(65, 140));
       expect(pulse.valid, isTrue);
 
       final motion = await container.read(latestMotionProvider.future);
@@ -81,6 +81,59 @@ void main() {
       final status = await container.read(latestStatusProvider.future);
       expect(status, isNotNull);
       expect(status!.battery, 88);
+    });
+
+    test('MockPuck simulates dynamic heart rate and 6-axis IMU vectors across motion modes', () async {
+      final mockPuck = MockPuck();
+      addTearDown(mockPuck.dispose);
+
+      // 1. Initial burst (tick 0)
+      final packets0 = <Object>[];
+      final sub = mockPuck.packetStream.listen((bytes) {
+        final res = PacketParser.parsePacket(bytes);
+        if (res.isSuccess && res.data != null) {
+          packets0.add(res.data!);
+        }
+      });
+
+      mockPuck.emitBurst();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(packets0.length, 5);
+      final pulse0 = packets0.whereType<PulseReading>().first;
+      expect(pulse0.bpm, 72);
+
+      // 2. Stationary Mode
+      packets0.clear();
+      mockPuck.setMotionMode(MockMotionMode.stationary);
+      mockPuck.emitBurst();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      final pulseStat = packets0.whereType<PulseReading>().first;
+      final motionStat = packets0.whereType<MotionReading>().first;
+      final aiStat = packets0.whereType<AiResult>().first;
+      expect(pulseStat.bpm, inInclusiveRange(65, 75));
+      expect(motionStat.intensity, lessThanOrEqualTo(15));
+      expect(aiStat.label, AiLabel.stationary);
+
+      // 3. Vigorous Mode
+      packets0.clear();
+      mockPuck.setMotionMode(MockMotionMode.vigorous);
+      mockPuck.emitBurst();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      final pulseVig = packets0.whereType<PulseReading>().first;
+      final motionVig = packets0.whereType<MotionReading>().first;
+      final aiVig = packets0.whereType<AiResult>().first;
+      expect(pulseVig.bpm, inInclusiveRange(120, 140));
+      expect(motionVig.intensity, greaterThanOrEqualTo(60));
+      expect(aiVig.label, AiLabel.vigorous);
+
+      // 4. GPS walking route drift
+      final gpsPkt = packets0.whereType<GpsReading>().first;
+      expect(gpsPkt.lat, isNotNull);
+      expect(gpsPkt.lon, isNotNull);
+
+      await sub.cancel();
     });
   });
 }

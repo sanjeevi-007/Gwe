@@ -1,9 +1,22 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:typed_data';
+
+/// Active physical motion simulation mode for MockPuck.
+enum MockMotionMode {
+  /// Stationary posture (seated or resting). Low intensity <= 15, low BPM (65-75).
+  stationary,
+
+  /// Typical walking cadence. Moderate intensity (20-50), moderate BPM (80-115).
+  walking,
+
+  /// High-exertion running or exercise. High intensity >= 60, elevated BPM (120-140).
+  vigorous,
+}
 
 /// Predefined simulation scenarios for MockPuck.
 enum MockScenario {
-  /// Valid readings across all sensors (Pulse 72 BPM, Motion moderate, GPS fixed, AI walking-like, Battery 88%).
+  /// Valid readings across all sensors (Pulse fluctuating, dynamic IMU, GPS walking path, AI, Battery).
   normal,
 
   /// Pulse state = poorSignal (2), quality = 15, valid = false.
@@ -29,18 +42,31 @@ enum MockScenario {
 }
 
 /// Fake Puck device simulator that produces raw binary BLE packets matching
-/// the exact protocol specification in docs/ble-protocol.md.
+/// the exact protocol specification in docs/ble-protocol.md with realistic
+/// physiological, 6-axis IMU, and walking route dynamics.
 class MockPuck {
   MockScenario _scenario = MockScenario.normal;
+  MockMotionMode _motionMode = MockMotionMode.walking;
   Timer? _timer;
   int _seq = 0;
+  int _tickCount = 0;
   DateTime? _startTime;
+
+  // Base coordinates: Marina Beach Promenade, Chennai
+  static const int baseLat = 130826802; // 13.0826802 deg
+  static const int baseLon = 802707184; // 80.2707184 deg
 
   final StreamController<Uint8List> _packetStreamController =
       StreamController<Uint8List>.broadcast();
 
   /// The active simulation scenario.
   MockScenario get scenario => _scenario;
+
+  /// The active physical motion mode.
+  MockMotionMode get motionMode => _motionMode;
+
+  /// Number of periodic bursts generated.
+  int get tickCount => _tickCount;
 
   /// Current packet sequence counter.
   int get seq => _seq;
@@ -54,6 +80,18 @@ class MockPuck {
   /// Sets the active simulation scenario.
   void setScenario(MockScenario scenario) {
     _scenario = scenario;
+  }
+
+  /// Sets the physical motion mode (Stationary, Walking, Vigorous).
+  void setMotionMode(MockMotionMode mode) {
+    _motionMode = mode;
+  }
+
+  /// Resets simulation tick counters and sequence numbers.
+  void resetSimulation() {
+    _seq = 0;
+    _tickCount = 0;
+    _startTime = DateTime.now();
   }
 
   /// Begins the 1000ms periodic timer emitting 5-packet bursts.
@@ -104,6 +142,8 @@ class MockPuck {
       _packetStreamController.add(aiPacket);
       _packetStreamController.add(statusPacket);
     }
+
+    _tickCount++;
   }
 
   int _nextSeq() {
@@ -126,7 +166,7 @@ class MockPuck {
     return bytes;
   }
 
-  /// Builds Type 0x01 Pulse packet (14 bytes).
+  /// Builds Type 0x01 Pulse packet (14 bytes) with sine-wave fluctuating heart rate.
   Uint8List _buildPulsePacket({required int tMs}) {
     int flags = 0x01; // bit 0 valid
     int bpm = 72;
@@ -161,7 +201,31 @@ class MockPuck {
       case MockScenario.gpsStale:
       case MockScenario.aiUncertain:
       case MockScenario.disconnected:
-        // default normal pulse reading
+        if (_tickCount == 0) {
+          // Backward-compatible deterministic base reading on tick 0
+          bpm = 72;
+          quality = 90;
+        } else {
+          // Dynamic sine-wave fluctuation across 65-140 BPM based on motion mode
+          final t = _tickCount;
+          switch (_motionMode) {
+            case MockMotionMode.stationary:
+              // Calm resting heart rate: 68-75 BPM
+              bpm = (71.0 + 4.0 * math.sin(t * 0.15)).round();
+              quality = 95;
+              break;
+            case MockMotionMode.walking:
+              // Moderate walking heart rate: 85-115 BPM
+              bpm = (100.0 + 15.0 * math.sin(t * 0.12)).round();
+              quality = 90;
+              break;
+            case MockMotionMode.vigorous:
+              // Intense exercise heart rate: 125-140 BPM
+              bpm = (132.0 + 8.0 * math.sin(t * 0.20)).round();
+              quality = 82;
+              break;
+          }
+        }
         break;
     }
 
@@ -175,17 +239,71 @@ class MockPuck {
     return bytes;
   }
 
-  /// Builds Type 0x02 Motion packet (23 bytes).
+  /// Builds Type 0x02 Motion packet (23 bytes) with dynamic 6-axis acceleration vectors and gyros.
   Uint8List _buildMotionPacket({required int tMs}) {
     const flags = 0x01; // valid
-    const ax = 50;
-    const ay = -120;
-    const az = 980;
-    const gx = 2;
-    const gy = -4;
-    const gz = 1;
-    const intensity = 35; // moderate movement
-    const estClass = 1; // walking
+
+    int ax = 50;
+    int ay = -120;
+    int az = 980;
+    int gx = 2;
+    int gy = -4;
+    int gz = 1;
+    int intensity = 35; // moderate movement
+    int estClass = 1; // walking
+
+    if (_tickCount == 0) {
+      // Deterministic initial values matching test fixtures
+      ax = 50;
+      ay = -120;
+      az = 980;
+      gx = 2;
+      gy = -4;
+      gz = 1;
+      intensity = 35;
+      estClass = 1;
+    } else {
+      final t = _tickCount;
+      final phase = (t * 0.4) % (2 * math.pi);
+
+      switch (_motionMode) {
+        case MockMotionMode.stationary:
+          // Low noise around 1G gravity vector
+          ax = (math.sin(phase) * 15).round();
+          ay = (math.cos(phase) * 15).round();
+          az = (980 + math.sin(phase * 2) * 10).round();
+          gx = (math.sin(phase) * 1).round();
+          gy = (math.cos(phase) * 1).round();
+          gz = 0;
+          intensity = 8; // <= 15
+          estClass = 0; // stationary
+          break;
+
+        case MockMotionMode.walking:
+          // Rhythmic stride acceleration waves (mg) and arm swing rotation (deg/s * 10)
+          ax = (50 + math.sin(phase) * 280).round();
+          ay = (-120 + math.cos(phase) * 380).round();
+          az = (980 + math.sin(phase * 2) * 220).round();
+          gx = (math.sin(phase) * 18).round();
+          gy = (math.cos(phase) * -22).round();
+          gz = (math.sin(phase * 0.5) * 12).round();
+          intensity = 35; // moderate movement
+          estClass = 1; // walking
+          break;
+
+        case MockMotionMode.vigorous:
+          // High exertion acceleration spikes and sharp rotations
+          ax = (math.sin(phase) * 1100).round();
+          ay = (math.cos(phase) * 1350).round();
+          az = (1200 + math.sin(phase * 2) * 800).round();
+          gx = (math.sin(phase) * 95).round();
+          gy = (math.cos(phase) * -110).round();
+          gz = (math.sin(phase * 0.5) * 60).round();
+          intensity = 78; // >= 60
+          estClass = 2; // vigorous
+          break;
+      }
+    }
 
     final bytes = Uint8List(23);
     bytes.setRange(0, 9, _buildHeader(type: 0x02, tMs: tMs, flags: flags));
@@ -201,13 +319,13 @@ class MockPuck {
     return bytes;
   }
 
-  /// Builds Type 0x03 GPS packet (27 bytes with age_s).
+  /// Builds Type 0x03 GPS packet (27 bytes) with smooth walking route drift.
   Uint8List _buildGpsPacket({required int tMs}) {
     int flags = 0x01;
     int fix = 1; // fix
     int sats = 8;
-    int lat = 130826802; // 13.0826802 deg
-    int lon = 802707184; // 80.2707184 deg
+    int lat = baseLat; // 13.0826802 deg
+    int lon = baseLon; // 80.2707184 deg
     int hdop = 12; // 1.2
     final utc = (DateTime.now().millisecondsSinceEpoch ~/ 1000) & 0xFFFFFFFF;
     int ageS = 1;
@@ -227,8 +345,8 @@ class MockPuck {
         flags = 0x03; // bit 0 valid, bit 1 stale set
         fix = 1;
         sats = 7;
-        lat = 130826802;
-        lon = 802707184;
+        lat = baseLat;
+        lon = baseLon;
         hdop = 15;
         ageS = 45; // stale > 30s
         break;
@@ -239,7 +357,20 @@ class MockPuck {
       case MockScenario.aiUncertain:
       case MockScenario.sensorError:
       case MockScenario.disconnected:
-        // default normal GPS reading
+        if (_tickCount == 0) {
+          lat = baseLat;
+          lon = baseLon;
+        } else {
+          // Drifts smoothly along an elliptical walking circuit (radius ~100m, ~1.2 m/s step)
+          final progress = (_tickCount * 0.05) % (2 * math.pi);
+          const int latRadius = 650; // ~72 meters North-South
+          const int lonRadius = 850; // ~90 meters East-West
+
+          lat = (baseLat + math.sin(progress) * latRadius).round();
+          lon = (baseLon + math.cos(progress) * lonRadius).round();
+          sats = 9;
+          hdop = 10; // 1.0 HDOP excellent fix
+        }
         break;
     }
 
@@ -256,7 +387,7 @@ class MockPuck {
     return bytes;
   }
 
-  /// Builds Type 0x04 AI Result packet (14 bytes).
+  /// Builds Type 0x04 AI Result packet (14 bytes) synchronized with motion mode.
   Uint8List _buildAiPacket({required int tMs}) {
     const flags = 0x01;
     int label = 1; // walkingLike
@@ -278,7 +409,25 @@ class MockPuck {
       case MockScenario.gpsStale:
       case MockScenario.sensorError:
       case MockScenario.disconnected:
-        // default normal AI result
+        if (_tickCount == 0) {
+          label = 1; // walkingLike
+          score = 88;
+        } else {
+          switch (_motionMode) {
+            case MockMotionMode.stationary:
+              label = 0; // stationary
+              score = 96;
+              break;
+            case MockMotionMode.walking:
+              label = 1; // walkingLike
+              score = 88;
+              break;
+            case MockMotionMode.vigorous:
+              label = 2; // vigorous
+              score = 92;
+              break;
+          }
+        }
         break;
     }
 
@@ -292,14 +441,16 @@ class MockPuck {
     return bytes;
   }
 
-  /// Builds Type 0x05 Device Status packet (18 bytes).
+  /// Builds Type 0x05 Device Status packet (18 bytes) with gradual battery drain.
   Uint8List _buildStatusPacket({required int tMs, required int uptimeS}) {
     const flags = 0x01;
     const fwMajor = 1;
     const fwMinor = 0;
     const fwPatch = 0;
     int sensors = 0x1F; // All 5 sensors ok (MAX30102, MPU6050, GPS, TFT, Model)
-    const battery = 88;
+
+    // Battery drains 1% every 120 seconds, maintaining 88% on initial ticks
+    final battery = (88 - (uptimeS ~/ 120)).clamp(5, 100);
 
     if (_scenario == MockScenario.sensorError) {
       sensors = 0x1E; // MAX30102 bit 0 cleared due to error
