@@ -8,6 +8,10 @@ import '../../models/models.dart';
 import '../../state/state.dart';
 import '../../widgets/stale_badge.dart';
 import '../../widgets/status_card.dart';
+import '../ai_insights/ai_insights_screen.dart';
+import '../location/location_screen.dart';
+import '../motion/motion_screen.dart';
+import '../pulse/pulse_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -213,6 +217,10 @@ class HomeScreen extends ConsumerWidget {
       staleState: staleState,
       timestamp: pulse?.tsReceived,
       footerText: 'MAX30102 • 5s freshness',
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PulseScreen()),
+      ),
       content: content,
     );
   }
@@ -311,6 +319,10 @@ class HomeScreen extends ConsumerWidget {
       staleState: staleState,
       timestamp: motion?.tsReceived,
       footerText: 'MPU6050 • 5s freshness',
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MotionScreen()),
+      ),
       content: content,
     );
   }
@@ -415,6 +427,10 @@ class HomeScreen extends ConsumerWidget {
       staleState: staleState,
       timestamp: gps?.tsReceived,
       footerText: 'NEO-6M • 30s freshness',
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LocationScreen()),
+      ),
       content: content,
     );
   }
@@ -480,6 +496,10 @@ class HomeScreen extends ConsumerWidget {
       staleState: staleState,
       timestamp: ai?.tsReceived,
       footerText: 'TFLite Micro on ESP32 • 5s freshness',
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AiInsightsScreen()),
+      ),
       content: content,
     );
   }
