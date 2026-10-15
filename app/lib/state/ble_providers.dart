@@ -45,3 +45,43 @@ final rawPacketsProvider = StreamProvider<ParsedPacketResult>((ref) {
   final bleService = ref.watch(bleServiceProvider);
   return bleService.parsedPackets;
 });
+
+/// Scanner service provider for discovering nearby BLE devices.
+final bleScannerServiceProvider = Provider<BleScannerService>((ref) {
+  final isMock = ref.watch(isMockModeProvider);
+  if (isMock) {
+    final service = MockBleScannerService();
+    ref.onDispose(() {
+      service.dispose();
+    });
+    return service;
+  } else {
+    final service = RealBleScannerService();
+    ref.onDispose(() {
+      service.dispose();
+    });
+    return service;
+  }
+});
+
+/// Stream provider exposing the list of discovered BLE devices.
+final discoveredDevicesProvider =
+    StreamProvider<List<DiscoveredBleDevice>>((ref) {
+  final scanner = ref.watch(bleScannerServiceProvider);
+  return scanner.discoveredDevices;
+});
+
+/// Stream provider indicating whether BLE scanning is currently active.
+final isScanningProvider = StreamProvider<bool>((ref) {
+  final scanner = ref.watch(bleScannerServiceProvider);
+  return scanner.isScanning;
+});
+
+/// Stream provider exposing the Bluetooth adapter power and authorization state.
+final bleAdapterStatusProvider = StreamProvider<BleAdapterStatus>((ref) {
+  final scanner = ref.watch(bleScannerServiceProvider);
+  return scanner.adapterStatus;
+});
+
+/// Provider storing the ID of the currently target / connected BLE device.
+final connectedDeviceIdProvider = StateProvider<String?>((ref) => 'GWEN-PUCK-MOCK');

@@ -7,6 +7,10 @@ class AppTheme {
   static const Color darkSurface = Color(0xFF1E2630); // Dark slate
   static const Color darkSurfaceVariant = Color(0xFF283340);
   static const Color darkError = Color(0xFFFF5252); // Bright red / coral
+  static const Color darkSuccess = Color(0xFF00E676); // Vibrant green
+  static const Color darkWarning = Color(0xFFFFB74D); // Warm amber
+  static const Color darkTextPrimary = Color(0xFFE2E8F0);
+  static const Color darkTextSecondary = Color(0xFF94A3B8);
   static const Color darkOnSurface = Color(0xFFE2E8F0);
   static const Color darkOnBackground = Color(0xFFE2E8F0);
 
