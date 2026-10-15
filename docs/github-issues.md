@@ -58,12 +58,12 @@ Labels: milestone, app
 
 **M4: Detail Screens and History**
 Labels: milestone, app
-- [ ] Pulse screen with chart, range selector, gap handling
-- [ ] Motion screen with friendly label + raw toggle
-- [ ] Location screen with all 6 GPS states
-- [ ] AI Insights screen with limitations section
-- [ ] History tab with averages and missing-data periods
-- [ ] Tag v0.4.0
+- [x] Pulse screen with chart, range selector, gap handling
+- [x] Motion screen with friendly label + raw toggle
+- [x] Location screen with all 6 GPS states
+- [x] AI Insights screen with limitations section
+- [x] History tab with averages and missing-data periods
+- [x] Tag v0.4.0
 
 ---
 

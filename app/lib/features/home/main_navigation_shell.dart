@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 import '../../state/state.dart';
 import '../ai_insights/ai_insights_screen.dart';
+import '../history/history_screen.dart';
 import '../location/location_screen.dart';
-import '../pulse/pulse_screen.dart';
 import '../settings/settings_screen.dart';
 import 'home_screen.dart';
 
@@ -21,7 +21,7 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    PulseScreen(),
+    HistoryScreen(),
     LocationScreen(),
     AiInsightsScreen(),
     SettingsScreen(),
@@ -53,9 +53,9 @@ class _MainNavigationShellState extends ConsumerState<MainNavigationShell> {
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.favorite_outline_rounded),
-            selectedIcon: Icon(Icons.favorite_rounded, color: AppTheme.darkPrimary),
-            label: 'Insights',
+            icon: Icon(Icons.history_outlined),
+            selectedIcon: Icon(Icons.history_rounded, color: AppTheme.darkPrimary),
+            label: 'History',
           ),
           NavigationDestination(
             icon: Icon(Icons.location_on_outlined),

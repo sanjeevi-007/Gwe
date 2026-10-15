@@ -10,6 +10,7 @@ class StatusCard extends StatelessWidget {
   final StaleState staleState;
   final DateTime? timestamp;
   final String? footerText;
+  final VoidCallback? onTap;
 
   const StatusCard({
     super.key,
@@ -19,6 +20,7 @@ class StatusCard extends StatelessWidget {
     required this.staleState,
     this.timestamp,
     this.footerText,
+    this.onTap,
   });
 
   String _formatRelativeAge(DateTime? ts) {
@@ -40,6 +42,7 @@ class StatusCard extends StatelessWidget {
     return Card(
       color: AppTheme.darkSurface,
       elevation: 2,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
@@ -47,35 +50,47 @@ class StatusCard extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Top Bar: Icon + Title and StaleBadge
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: AppTheme.darkPrimary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: AppTheme.darkOnSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Top Bar: Icon + Title and StaleBadge
+              Row(
+                children: [
+                  Icon(
+                    icon,
+                    size: 20,
+                    color: AppTheme.darkPrimary,
                   ),
-                ),
-                StaleBadge(state: staleState),
-              ],
-            ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: AppTheme.darkOnSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (onTap != null)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6.0),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: AppTheme.darkOnSurface.withValues(alpha: 0.35),
+                      ),
+                    ),
+                  StaleBadge(state: staleState),
+                ],
+              ),
             const SizedBox(height: 14),
 
             // Main Content Area: Honest fallback if unavailable/unknown
@@ -132,6 +147,7 @@ class StatusCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
