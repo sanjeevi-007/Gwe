@@ -1,0 +1,24 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include <stdint.h>
+
+// BLE Service & Characteristic UUIDs (128-bit)
+#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_PULSE_UUID        "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_MOTION_UUID       "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_GPS_UUID          "6E400004-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_AI_UUID           "6E400005-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_STATUS_UUID       "6E400006-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_TIME_SYNC_UUID    "6E400007-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHAR_CONFIG_UUID       "6E400008-B5A3-F393-E0A9-E50E24DCCA9E"
+
+// Protocol Constants
+constexpr uint8_t  PROTOCOL_VERSION           = 1;
+constexpr uint16_t DEFAULT_NOTIFY_INTERVAL_MS = 1000;
+
+// Motion Rule-Based Threshold Constants
+constexpr uint8_t STATIONARY_INTENSITY_MAX   = 15;
+constexpr uint8_t VIGOROUS_INTENSITY_MIN     = 60;
+
+#endif // CONFIG_H
