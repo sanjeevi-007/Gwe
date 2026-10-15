@@ -284,7 +284,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      final tile = find.byKey(const Key('settings_device_picker_tile'));
+      final tile = find.byKey(const Key('change_device_button'));
       expect(tile, findsOneWidget);
       await tester.tap(tile);
       await tester.pump();

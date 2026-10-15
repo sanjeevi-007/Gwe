@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../ble/phone_gps_bridge.dart';
 import '../data/database.dart';
 import '../data/database_sync_service.dart';
+import '../data/export_service.dart';
 import '../data/repositories/repositories.dart';
 import 'ble_providers.dart';
 
@@ -68,3 +70,43 @@ final databaseSyncServiceProvider = Provider<DatabaseSyncService>((ref) {
 
   return syncService;
 });
+
+/// Service for generating and sharing CSV and JSON telemetry exports.
+final exportServiceProvider = Provider<ExportService>((ref) {
+  final pulseRepo = ref.watch(pulseRepositoryProvider);
+  final motionRepo = ref.watch(motionRepositoryProvider);
+  final gpsRepo = ref.watch(gpsRepositoryProvider);
+  final aiRepo = ref.watch(aiRepositoryProvider);
+
+  return ExportService(
+    pulseRepository: pulseRepo,
+    motionRepository: motionRepo,
+    gpsRepository: gpsRepo,
+    aiRepository: aiRepo,
+  );
+});
+
+/// State provider controlling whether Phone GPS Bridge is actively streaming coordinates.
+final isPhoneGpsActiveProvider = StateProvider<bool>((ref) => false);
+
+/// Phone GPS Bridge provider converting phone coordinates into GpsReadings.
+final phoneGpsBridgeProvider = Provider<PhoneGpsBridge>((ref) {
+  final gpsRepo = ref.watch(gpsRepositoryProvider);
+  final bridge = PhoneGpsBridge(gpsRepository: gpsRepo);
+  final isActive = ref.watch(isPhoneGpsActiveProvider);
+
+  if (isActive) {
+    bridge.start();
+  } else {
+    bridge.stop();
+  }
+
+  ref.onDispose(() {
+    bridge.dispose();
+  });
+
+  return bridge;
+});
+
+/// History retention preference (e.g. '24_hours', '7_days', '30_days', 'forever').
+final historyRetentionProvider = StateProvider<String>((ref) => 'forever');
