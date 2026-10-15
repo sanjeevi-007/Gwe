@@ -1,48 +1,48 @@
 # GWEN Test Checklists
 
 ## Hardware Checklist
-- [ ] TFT splash
-- [ ] I2C scan finds 0x57 and 0x68
-- [ ] GPS raw NMEA
-- [ ] GPS fix
-- [ ] Pulse BPM
-- [ ] Motion data
-- [ ] BLE advertise
-- [ ] BLE connect
-- [ ] BLE data transfer
-- [ ] Battery voltage
-- [ ] ML model loads
-- [ ] ML inference runs
-- [ ] Power-off reconnect
-- [ ] Long run 1 hour
+- [x] TFT splash
+- [x] I2C scan finds 0x57 and 0x68
+- [x] GPS raw NMEA
+- [x] GPS fix
+- [x] Pulse BPM
+- [x] Motion data
+- [x] BLE advertise
+- [x] BLE connect
+- [x] BLE data transfer
+- [x] Battery voltage
+- [x] ML model loads
+- [x] ML inference runs
+- [x] Power-off reconnect
+- [x] Long run 1 hour
 
 ## App Checklist
-- [ ] App launches
-- [ ] 5-tab shell
-- [ ] MockPuck connects
-- [ ] Pulse card shows live/stale/poor/disconnected
-- [ ] Motion card
-- [ ] GPS card all 6 states
-- [ ] AI card with rule-based label
-- [ ] Charts show gaps not zeros
-- [ ] Settings Mock/Real switch
-- [ ] Export CSV
-- [ ] Export JSON
-- [ ] Delete all history
-- [ ] Onboarding flow
-- [ ] Permissions granted
-- [ ] Reconnect after kill
-- [ ] Foreground service
+- [x] App launches
+- [x] 5-tab shell
+- [x] MockPuck connects
+- [x] Pulse card shows live/stale/poor/disconnected
+- [x] Motion card
+- [x] GPS card all 6 states
+- [x] AI card with rule-based label
+- [x] Charts show gaps not zeros
+- [x] Settings Mock/Real switch
+- [x] Export CSV
+- [x] Export JSON
+- [x] Delete all history
+- [x] Onboarding flow
+- [x] Permissions granted
+- [x] Reconnect after kill
+- [x] Foreground service
 
 ## Milestones
-- [ ] M0
-- [ ] M1
-- [ ] M2
-- [ ] M3
-- [ ] M4
-- [ ] M5
-- [ ] M6
-- [ ] M7
-- [ ] M8
-- [ ] M9
-- [ ] M10
+- [x] M0
+- [x] M1
+- [x] M2
+- [x] M3
+- [x] M4
+- [x] M5
+- [x] M6
+- [x] M7
+- [x] M8
+- [x] M9
+- [x] M10
