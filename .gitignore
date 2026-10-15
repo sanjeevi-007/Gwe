@@ -39,3 +39,7 @@ Desktop.ini
 *.bin
 *.elf
 *.hex
+*.dll
+*.so
+*.dylib
+
