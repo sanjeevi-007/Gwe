@@ -21,6 +21,9 @@ abstract class BleService {
   /// Stream of parsed packets from incoming BLE notifications.
   Stream<ParsedPacketResult> get parsedPackets;
 
+  /// Identifier of currently connected device, or null if disconnected.
+  String? get connectedDeviceId;
+
   /// Connects to a target BLE device by identifier or address.
   Future<void> connect(String deviceId);
 

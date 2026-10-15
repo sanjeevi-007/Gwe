@@ -14,6 +14,9 @@ class RealBleServiceStub implements BleService {
   BleConnectionState get currentConnectionState => BleConnectionState.disconnected;
 
   @override
+  String? get connectedDeviceId => null;
+
+  @override
   Stream<BleConnectionState> get connectionState async* {
     yield BleConnectionState.disconnected;
     yield* _stateController.stream;

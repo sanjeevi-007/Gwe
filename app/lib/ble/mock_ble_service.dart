@@ -41,6 +41,9 @@ class MockBleService implements BleService {
   BleConnectionState get currentConnectionState => _connectionState;
 
   @override
+  String? get connectedDeviceId => _connectedDeviceId;
+
+  @override
   Stream<BleConnectionState> get connectionState async* {
     yield _connectionState;
     yield* _connectionStateController.stream;
