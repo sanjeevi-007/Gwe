@@ -237,10 +237,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final deviceName = isConnected
         ? (isMockMode ? 'GWEN Puck (Simulated)' : 'GWEN Puck')
         : 'Disconnected';
-    final deviceIdText = connectedDeviceId ?? 'GWEN-PUCK-MOCK';
+    final deviceIdText = isMockMode
+        ? 'GW:EN:PC:K0:01:00'
+        : (connectedDeviceId ?? 'GW:EN:PC:K0:01:00');
     final firmwareText = isConnected
-        ? (status != null ? 'v${status.firmwareVersion}' : 'v1.0.0')
-        : 'v1.0.0';
+        ? (isMockMode ? 'v1.0.0-sim' : (status != null ? 'v${status.firmwareVersion}' : 'v1.0.0'))
+        : 'v1.0.0-sim';
     final batteryText = isConnected
         ? (status?.battery != null ? '${status!.battery}%' : '85%')
         : '--';
@@ -387,7 +389,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         color: AppTheme.darkPrimary,
                       ),
                       title: const Text(
-                        'Use Phone GPS for Location',
+                        'Use Phone GPS for Location Telemetry',
                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                       ),
                       subtitle: const Text(
@@ -539,11 +541,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'GWEN stores 100% of data locally in SQLite. Coordinates and pulse history are never uploaded.',
+                            '100% Offline & Private. Data stays on your device.',
                             style: TextStyle(
                               fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: AppTheme.darkTextPrimary,
-                              height: 1.35,
                             ),
                           ),
                         ),
@@ -572,7 +574,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.table_chart_outlined, size: 20),
-                      label: const Text('Export History as CSV'),
+                      label: const Text('Export History (CSV)'),
                       onPressed: _isExporting ? null : _exportCsv,
                     ),
                   ),
@@ -598,7 +600,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.code_rounded, size: 20),
-                      label: const Text('Export History as JSON'),
+                      label: const Text('Export History (JSON)'),
                       onPressed: _isExporting ? null : _exportJson,
                     ),
                   ),
@@ -685,7 +687,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                             )
                           : const Icon(Icons.delete_forever_rounded, size: 20),
-                      label: const Text('Delete All Local History'),
+                      label: const Text('Delete All History'),
                       onPressed: _isPurging ? null : _confirmDeleteAllHistory,
                     ),
                   ),
@@ -761,7 +763,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                       icon: const Icon(Icons.auto_stories_outlined, size: 18),
-                      label: const Text('View App Intro / Onboarding'),
+                      label: const Text('Re-run App Onboarding'),
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(

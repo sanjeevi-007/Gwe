@@ -236,8 +236,8 @@ void main() {
 
       // Verify Hardware details
       expect(find.text('GWEN Puck (Simulated)'), findsOneWidget);
-      expect(find.text('GWEN-PUCK-MOCK'), findsOneWidget);
-      expect(find.text('v1.0.0'), findsWidgets);
+      expect(find.text('GW:EN:PC:K0:01:00'), findsOneWidget);
+      expect(find.text('v1.0.0-sim'), findsOneWidget);
       expect(find.text('92%'), findsOneWidget);
 
       // Verify Buttons presence

@@ -155,10 +155,9 @@ class ExportService {
     final motion = await motionRepository.getMotionHistory(start, now);
     final gps = await gpsRepository.getGpsHistory(start, now);
 
-    final ts = now.millisecondsSinceEpoch;
-    final pulseFile = File('${dir.path}/gwen_pulse_$ts.csv');
-    final motionFile = File('${dir.path}/gwen_motion_$ts.csv');
-    final gpsFile = File('${dir.path}/gwen_gps_$ts.csv');
+    final pulseFile = File('${dir.path}/pulse_readings.csv');
+    final motionFile = File('${dir.path}/motion_readings.csv');
+    final gpsFile = File('${dir.path}/gps_readings.csv');
 
     await pulseFile.writeAsString(formatPulseCsv(pulse));
     await motionFile.writeAsString(formatMotionCsv(motion));
@@ -181,8 +180,7 @@ class ExportService {
     final gps = await gpsRepository.getGpsHistory(start, now);
     final ai = await aiRepository.getAiHistory(start, now);
 
-    final ts = now.millisecondsSinceEpoch;
-    final jsonFile = File('${dir.path}/gwen_export_$ts.json');
+    final jsonFile = File('${dir.path}/gwen_export.json');
 
     final jsonContent = formatJsonExport(
       pulse: pulse,
