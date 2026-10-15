@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+  pull_request:
+    branches:
+      - main
+      - 'feature/*'
+
+jobs:
+  flutter-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Flutter project existence
+        id: check_project
+        run: |
+          if [ ! -f "app/pubspec.yaml" ]; then
+            echo "No Flutter project yet, skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Flutter
+        if: steps.check_project.outputs.skip != 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Run flutter pub get
+        if: steps.check_project.outputs.skip != 'true'
+        run: |
+          cd app
+          flutter pub get
+
+      - name: Run flutter analyze
+        if: steps.check_project.outputs.skip != 'true'
+        run: |
+          cd app
+          flutter analyze
+
+      - name: Run flutter test
+        if: steps.check_project.outputs.skip != 'true'
+        run: |
+          cd app
+          flutter test
